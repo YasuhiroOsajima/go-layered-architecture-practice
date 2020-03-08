@@ -1,0 +1,8 @@
+.vscode
+.DS_Store
+.idea
+
+go.sum
+
+*/wire_gen.go
+*/*/wire_gen.go
