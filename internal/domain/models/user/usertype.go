@@ -3,24 +3,26 @@ package user
 import "errors"
 
 const (
-	normal  = "Normal"
-	premium = "Premium"
+	Normal  = "Normal"
+	Premium = "Premium"
 )
 
 type userType string
 
 func NewUserType(uType string) (userType, error) {
-	if uType != normal && uType != premium {
+	if uType != Normal && uType != Premium {
 		return "", errors.New("invalid userType is specified")
 	}
 
 	return (userType)(uType), nil
 }
 
-func (u userType) Normal() string {
-	return normal
+func newNormalUserType() userType {
+	normalUser, _ := NewUserType(Normal)
+	return normalUser
 }
 
-func (u userType) Premium() string {
-	return premium
+func newPremiumUserType() userType {
+	premiumUser, _ := NewUserType(Premium)
+	return premiumUser
 }

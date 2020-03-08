@@ -11,10 +11,18 @@ func NewUser(id userId, name userName, userTpe userType) *user {
 }
 
 func (u user) IsPremium() bool {
-	premiumUser, _ := NewUserType(premium)
+	premiumUser := newPremiumUserType()
 	return u.userType == premiumUser
 }
 
 func (u *user) ChangeName(name userName) {
 	u.name = name
+}
+
+func (u *user) Upgrade() {
+	u.userType = newPremiumUserType()
+}
+
+func (u *user) Downgrade() {
+	u.userType = newNormalUserType()
 }
