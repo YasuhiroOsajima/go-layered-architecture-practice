@@ -2,18 +2,12 @@ package user
 
 import "errors"
 
-type userId struct {
-	value string
-}
+type userId string
 
-func NewUserId(id string) (*userId, error) {
+func NewUserId(id string) (userId, error) {
 	if id == "" {
-		return nil, errors.New("userId is not specified")
+		return "", errors.New("userId is not specified")
 	}
 
-	return &userId{id}, nil
-}
-
-func (u userId) Value() string {
-	return u.value
+	return (userId)(id), nil
 }

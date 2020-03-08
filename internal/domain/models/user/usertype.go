@@ -7,20 +7,14 @@ const (
 	premium = "Premium"
 )
 
-type userType struct {
-	value string
-}
+type userType string
 
-func NewUserType(uType string) (*userType, error) {
+func NewUserType(uType string) (userType, error) {
 	if uType != normal && uType != premium {
-		return nil, errors.New("invalid userType is specified")
+		return "", errors.New("invalid userType is specified")
 	}
 
-	return &userType{uType}, nil
-}
-
-func (u userType) Value() string {
-	return u.value
+	return (userType)(uType), nil
 }
 
 func (u userType) Normal() string {
