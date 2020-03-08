@@ -1,13 +1,20 @@
 package user
 
-// User is entity of user domain.
-type User struct {
-	id       UserId
-	name     UserName
-	userType UserType
+type user struct {
+	id       *userId
+	name     *userName
+	userType *userType
 }
 
-// NewUser is constructor of User.
-func NewUser(id UserId, name UserName, userTpe UserType) *User {
-	return &User{id, name, userTpe}
+func NewUser(id *userId, name *userName, userTpe *userType) *user {
+	return &user{id, name, userTpe}
+}
+
+func (u user) IsPremium() bool {
+	premiumUser, _ := NewUserType(premium)
+	return u.userType == premiumUser
+}
+
+func (u *user) ChangeName(name *userName) {
+	u.name = name
 }

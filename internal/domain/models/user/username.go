@@ -2,26 +2,26 @@ package user
 
 import "errors"
 
-type UserName struct {
+type userName struct {
 	value string
 }
 
-func NewUserName(name string) (*UserName, error) {
+func NewUserName(name string) (*userName, error) {
 	if name == "" {
-		return nil, errors.New("UserName is not specified")
+		return nil, errors.New("userName is not specified")
 	}
 
 	if len(name) < 3 {
-		return nil, errors.New("UserName should be over 3 characters")
+		return nil, errors.New("userName should be over 3 characters")
 	}
 
 	if len(name) > 20 {
-		return nil, errors.New("UserName should be less than 20 characters")
+		return nil, errors.New("userName should be less than 20 characters")
 	}
 
-	return &UserName{name}, nil
+	return &userName{name}, nil
 }
 
-func (u UserName) Value() string {
+func (u userName) Value() string {
 	return u.value
 }
