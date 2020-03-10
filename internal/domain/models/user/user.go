@@ -1,28 +1,28 @@
 package user
 
-type user struct {
+type User struct {
 	id       userId
 	name     userName
 	userType userType
 }
 
-func NewUser(id userId, name userName, userTpe userType) *user {
-	return &user{id, name, userTpe}
+func NewUser(id userId, name userName, userTpe userType) *User {
+	return &User{id, name, userTpe}
 }
 
-func (u user) IsPremium() bool {
+func (u User) IsPremium() bool {
 	premiumUser := newPremiumUserType()
 	return u.userType == premiumUser
 }
 
-func (u *user) ChangeName(name userName) {
+func (u *User) ChangeName(name userName) {
 	u.name = name
 }
 
-func (u *user) Upgrade() {
+func (u *User) Upgrade() {
 	u.userType = newPremiumUserType()
 }
 
-func (u *user) Downgrade() {
+func (u *User) Downgrade() {
 	u.userType = newNormalUserType()
 }
