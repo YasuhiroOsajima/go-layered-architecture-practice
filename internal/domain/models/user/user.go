@@ -10,6 +10,10 @@ func NewUser(id userId, name userName, userTpe userType) *User {
 	return &User{id, name, userTpe}
 }
 
+func (u User) Equals(user *User) bool {
+	return u.id == user.id
+}
+
 func (u User) IsPremium() bool {
 	premiumUser := newPremiumUserType()
 	return u.userType == premiumUser
