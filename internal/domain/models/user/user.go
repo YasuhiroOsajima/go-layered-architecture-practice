@@ -14,6 +14,18 @@ func (u User) Equals(user *User) bool {
 	return u.id == user.id
 }
 
+func (u User) Id() userId {
+	return u.id
+}
+
+func (u User) Name() userName {
+	return u.name
+}
+
+func (u User) Type() userType {
+	return u.userType
+}
+
 func (u User) IsPremium() bool {
 	premiumUser := newPremiumUserType()
 	return u.userType == premiumUser
