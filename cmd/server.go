@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go-layered-architecture-practice/internal/domain/models/user"
 )
 
@@ -16,4 +17,6 @@ func main() {
 	newUser2 := user.NewUser(userId2, userName2, userType2)
 
 	newUser1.Equals(newUser2)
+
+	fmt.Println(userName1 == userName2)
 }
