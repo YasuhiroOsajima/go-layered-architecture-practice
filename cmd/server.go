@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+
 	"go-layered-architecture-practice/internal/domain/models/user"
+	"go-layered-architecture-practice/internal/domain/services"
 )
 
 func main() {
@@ -19,4 +21,8 @@ func main() {
 	newUser1.Equals(newUser2)
 
 	fmt.Println(userName1 == userName2)
+
+	result, err := services.Exists(newUser1)
+	fmt.Println(result)
+	fmt.Println(err)
 }
