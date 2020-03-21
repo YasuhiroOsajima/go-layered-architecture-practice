@@ -3,6 +3,7 @@
 .idea
 
 go.sum
+go.sum*tmp
 
 */wire_gen.go
 */*/wire_gen.go
