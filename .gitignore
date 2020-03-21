@@ -8,3 +8,5 @@ go.sum
 */*/wire_gen.go
 
 test.db
+
+server
