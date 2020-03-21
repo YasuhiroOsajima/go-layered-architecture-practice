@@ -1,12 +1,12 @@
 package user
 
 type User struct {
-	id       userId
-	name     userName
-	userType userType
+	id       UserId
+	name     UserName
+	userType UserType
 }
 
-func NewUser(id userId, name userName, userTpe userType) *User {
+func NewUser(id UserId, name UserName, userTpe UserType) *User {
 	return &User{id, name, userTpe}
 }
 
@@ -14,15 +14,15 @@ func (u User) Equals(user *User) bool {
 	return u.id == user.id
 }
 
-func (u User) Id() userId {
+func (u User) Id() UserId {
 	return u.id
 }
 
-func (u User) Name() userName {
+func (u User) Name() UserName {
 	return u.name
 }
 
-func (u User) Type() userType {
+func (u User) Type() UserType {
 	return u.userType
 }
 
@@ -31,7 +31,7 @@ func (u User) IsPremium() bool {
 	return u.userType == premiumUser
 }
 
-func (u *User) ChangeName(name userName) {
+func (u *User) ChangeName(name UserName) {
 	u.name = name
 }
 

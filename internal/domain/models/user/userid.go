@@ -2,12 +2,12 @@ package user
 
 import "errors"
 
-type userId string
+type UserId string
 
-func NewUserId(id string) (userId, error) {
+func NewUserId(id string) (UserId, error) {
 	if id == "" {
 		return "", errors.New("userId is not specified")
 	}
 
-	return (userId)(id), nil
+	return (UserId)(id), nil
 }

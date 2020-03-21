@@ -2,12 +2,12 @@ package circle
 
 import "errors"
 
-type circleId string
+type CircleId string
 
-func NewCircleId(id string) (circleId, error) {
+func NewCircleId(id string) (CircleId, error) {
 	if id == "" {
 		return "", errors.New("circleId is not specified")
 	}
 
-	return (circleId)(id), nil
+	return (CircleId)(id), nil
 }

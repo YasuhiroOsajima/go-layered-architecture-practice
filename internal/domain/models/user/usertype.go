@@ -7,22 +7,22 @@ const (
 	Premium = "Premium"
 )
 
-type userType string
+type UserType string
 
-func NewUserType(uType string) (userType, error) {
+func NewUserType(uType string) (UserType, error) {
 	if uType != Normal && uType != Premium {
 		return "", errors.New("invalid userType is specified")
 	}
 
-	return (userType)(uType), nil
+	return (UserType)(uType), nil
 }
 
-func newNormalUserType() userType {
+func newNormalUserType() UserType {
 	normalUser, _ := NewUserType(Normal)
 	return normalUser
 }
 
-func newPremiumUserType() userType {
+func newPremiumUserType() UserType {
 	premiumUser, _ := NewUserType(Premium)
 	return premiumUser
 }

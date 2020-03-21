@@ -7,13 +7,13 @@ import (
 )
 
 type Circle struct {
-	id      circleId
-	name    circleName
+	id      CircleId
+	name    CircleName
 	owner   user.User
 	members []user.User
 }
 
-func NewCircle(id circleId, name circleName, owner user.User, members []user.User) *Circle {
+func NewCircle(id CircleId, name CircleName, owner user.User, members []user.User) *Circle {
 	return &Circle{id, name, owner, members}
 }
 
@@ -21,11 +21,11 @@ func (u Circle) Equals(user *Circle) bool {
 	return u.id == user.id
 }
 
-func (c Circle) Id() circleId {
+func (c Circle) Id() CircleId {
 	return c.id
 }
 
-func (c Circle) Name() circleName {
+func (c Circle) Name() CircleName {
 	return c.name
 }
 

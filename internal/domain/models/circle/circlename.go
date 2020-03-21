@@ -2,12 +2,12 @@ package circle
 
 import "errors"
 
-type circleName string
+type CircleName string
 
-func NewClassName(name string) (circleName, error) {
+func NewClassName(name string) (CircleName, error) {
 	if name == "" {
 		return "", errors.New("circleName is not specified")
 	}
 
-	return (circleName)(name), nil
+	return (CircleName)(name), nil
 }

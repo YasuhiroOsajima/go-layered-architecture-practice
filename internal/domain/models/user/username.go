@@ -2,9 +2,9 @@ package user
 
 import "errors"
 
-type userName string
+type UserName string
 
-func NewUserName(name string) (userName, error) {
+func NewUserName(name string) (UserName, error) {
 	if name == "" {
 		return "", errors.New("userName is not specified")
 	}
@@ -17,5 +17,5 @@ func NewUserName(name string) (userName, error) {
 		return "", errors.New("userName should be less than 20 characters")
 	}
 
-	return (userName)(name), nil
+	return (UserName)(name), nil
 }
