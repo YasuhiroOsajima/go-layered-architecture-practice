@@ -49,3 +49,12 @@ func (r userRepository) FindAll(targetUserName user.UserName) ([]*user.User, err
 	}
 	return users, nil
 }
+
+func (r *userRepository) Delete(targetUser *user.User) error {
+	for i, u := range r.db {
+		if u.Id() == targetUser.Id() {
+			r.db = append(r.db[:i], r.db[i+1:]...)
+		}
+	}
+	return nil
+}

@@ -93,3 +93,7 @@ func (r userRepository) FindAll(targetUserName user.UserName) ([]*user.User, err
 
 	return users, nil
 }
+func (r *userRepository) Delete(targetUser *user.User) error {
+	_, err := r.db.NamedExec("DELETE FROM `user` WHERE `id`=:id;", targetUser)
+	return err
+}
