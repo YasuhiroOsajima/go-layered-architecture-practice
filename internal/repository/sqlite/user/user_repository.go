@@ -61,6 +61,10 @@ func (r userRepository) Find(targetUserId user.UserId) (*user.User, error) {
 		return nil, err
 	}
 
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
 	uid, _ := user.NewUserId(id)
 	uname, _ := user.NewUserName(name)
 	utype, _ := user.NewUserType(usertype)

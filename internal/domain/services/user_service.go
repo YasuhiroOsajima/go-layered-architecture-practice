@@ -1,33 +1,24 @@
 package services
 
-import (
-	"errors"
+import "go-layered-architecture-practice/internal/domain/models/user"
 
-	"github.com/jmoiron/sqlx"
-	_ "github.com/mattn/go-sqlite3"
+type userService struct {
+	repository user.UserRepositoryInterface
+}
 
-	"go-layered-architecture-practice/internal/domain/models/user"
-)
+func NewUserService(repository user.UserRepositoryInterface) userService {
+	return userService{repository}
+}
 
-var dbFileName = "test.db"
-
-func Exists(targetUser *user.User) (bool, error) {
-	db, err := sqlx.Connect("sqlite3", dbFileName)
+func (s userService) Exists(targetUser *user.User) (bool, error) {
+	res, err := s.repository.Find(targetUser.Id())
 	if err != nil {
 		return false, err
 	}
 
-	var count int
-	err = db.QueryRow("SELECT COUNT(*) FROM `user` WHERE `id`=?;", targetUser.Id()).Scan(&count)
-	if err != nil {
-		return false, err
-	}
-
-	if count == 0 {
-		return false, nil
-	} else if count == 1 {
+	if res != nil {
 		return true, nil
 	} else {
-		return false, errors.New("target user is invalid status")
+		return false, nil
 	}
 }
