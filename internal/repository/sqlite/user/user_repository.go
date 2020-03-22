@@ -54,7 +54,7 @@ func (r userRepository) Save(targetUser *user.User) error {
 	}
 }
 
-func (r userRepository) Find(targetUserName *user.UserName) ([]*user.User, error) {
+func (r userRepository) Find(targetUserName user.UserName) ([]*user.User, error) {
 	rows, err := r.db.Query("SELECT * FROM `user` WHERE `name`=?;", targetUserName)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
