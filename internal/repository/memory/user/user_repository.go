@@ -29,7 +29,17 @@ func (r *userRepository) Save(targetUser *user.User) error {
 	}
 }
 
-func (r userRepository) Find(targetUserName user.UserName) ([]*user.User, error) {
+func (r userRepository) Find(targetUserId user.UserId) (*user.User, error) {
+	var targetUser *user.User
+	for _, u := range r.db {
+		if u.Id() == targetUserId {
+			targetUser = user.NewUser(u.Id(), u.Name(), u.Type())
+		}
+	}
+	return targetUser, nil
+}
+
+func (r userRepository) FindAll(targetUserName user.UserName) ([]*user.User, error) {
 	var users []*user.User
 	for _, u := range r.db {
 		if u.Name() == targetUserName {

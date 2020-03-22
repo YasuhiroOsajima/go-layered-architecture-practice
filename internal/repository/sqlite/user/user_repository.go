@@ -54,7 +54,21 @@ func (r userRepository) Save(targetUser *user.User) error {
 	}
 }
 
-func (r userRepository) Find(targetUserName user.UserName) ([]*user.User, error) {
+func (r userRepository) Find(targetUserId user.UserId) (*user.User, error) {
+	var id, name, usertype string
+	err := r.db.QueryRow("SELECT * FROM `user` WHERE `id`=?;", targetUserId).Scan(id, name, usertype)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+
+	uid, _ := user.NewUserId(id)
+	uname, _ := user.NewUserName(name)
+	utype, _ := user.NewUserType(usertype)
+	targetUser := user.NewUser(uid, uname, utype)
+	return targetUser, nil
+}
+
+func (r userRepository) FindAll(targetUserName user.UserName) ([]*user.User, error) {
 	rows, err := r.db.Query("SELECT * FROM `user` WHERE `name`=?;", targetUserName)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
