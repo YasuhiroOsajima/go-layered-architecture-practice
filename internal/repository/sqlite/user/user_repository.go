@@ -9,7 +9,7 @@ import (
 	"go-layered-architecture-practice/internal/domain/models/user"
 )
 
-var dbFileName = "test.db"
+var dbFileName = "../test.db"
 
 type userRepository struct {
 	db *sqlx.DB

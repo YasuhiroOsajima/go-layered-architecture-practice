@@ -1,5 +1,7 @@
 DBFILE = test.db
-FILEEXISTS = $(shell ls | grep ${DBFILE})
+DBDIR = ./internal/repository/sqlite
+DBPATH = ${DBDIR}/${DBFILE}
+FILEEXISTS = $(shell ls ${DBDIR} | grep ${DBFILE})
 
 setupdb:
 ifeq (${FILEEXISTS}, ${DBFILE})
@@ -7,12 +9,12 @@ ifeq (${FILEEXISTS}, ${DBFILE})
 else
 	@echo 'Create DB file.'
 
-	@sqlite3 ${DBFILE} < scripts/create_db.sql
+	@sqlite3 ${DBPATH} < scripts/create_db.sql
 endif
 
 cleanupdb:
 ifeq (${FILEEXISTS}, ${DBFILE})
-	rm ${DBFILE}
+	rm ${DBPATH}
 endif
 
 addtestuser: setupdb
