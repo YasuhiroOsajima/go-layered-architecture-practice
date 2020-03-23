@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
@@ -25,43 +26,37 @@ func NewUserRepository() (*userRepository, error) {
 }
 
 func (r userRepository) Save(targetUser *user.User) error {
-	var id, name, usertype string
-	err := r.db.QueryRow("SELECT * FROM `user` WHERE `id`=?;", targetUser.Id()).Scan(&id, &name, &usertype)
-	if err != nil && err != sql.ErrNoRows {
+	found, err := r.Find(targetUser.Id())
+	if err != nil {
 		return err
 	}
 
-	if err == sql.ErrNoRows {
-		_, err = r.db.NamedExec("INSERT INTO `user` (id, name, usertype) VALUES (:id, :name, :usertype);", targetUser)
+	if found == nil {
+		_, err = r.db.NamedExec("INSERT INTO `user` (`id`, `name`, `usertype`) VALUES (:uid, :uname, :utype);",
+			map[string]interface{}{
+				"uid":   targetUser.Id(),
+				"uname": targetUser.Name(),
+				"utype": targetUser.Type(),
+			})
 		return err
 	} else {
-		uid, err := user.NewUserId(id)
-		if err != nil {
-			return err
-		}
-		uname, err := user.NewUserName(name)
-		if err != nil {
-			return err
-		}
-		utype, err := user.NewUserType(usertype)
-		if err != nil {
-			return err
-		}
-
-		u := user.NewUser(uid, uname, utype)
-		_, err = r.db.NamedExec("UPDATE `user` SET `name`=:name, `usertype`=:usertype WHERE `id`=:id;", u)
+		_, err = r.db.NamedExec("UPDATE `user` SET `name`=:uname, `usertype`=:utype WHERE `id`=:uid;",
+			map[string]interface{}{
+				"uid":   targetUser.Id(),
+				"uname": targetUser.Name(),
+				"utype": targetUser.Type(),
+			})
 		return err
 	}
 }
 
 func (r userRepository) Find(targetUserId user.UserId) (*user.User, error) {
 	var id, name, usertype string
-	err := r.db.QueryRow("SELECT * FROM `user` WHERE `id`=?;", targetUserId).Scan(id, name, usertype)
-	if err != nil && err != sql.ErrNoRows {
-		return nil, err
-	}
-
-	if err == sql.ErrNoRows {
+	err := r.db.QueryRow("SELECT * FROM `user` WHERE `id`=?;", targetUserId).Scan(&id, &name, &usertype)
+	if err != nil {
+		if err != sql.ErrNoRows && !strings.HasPrefix(err.Error(), "could not find name ") {
+			return nil, err
+		}
 		return nil, nil
 	}
 

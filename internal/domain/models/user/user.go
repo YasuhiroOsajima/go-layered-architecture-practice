@@ -1,9 +1,9 @@
 package user
 
 type User struct {
-	id       UserId   `db:"id"`
-	name     UserName `db:"name"`
-	userType UserType `db:"usertype"`
+	id       UserId
+	name     UserName
+	userType UserType
 }
 
 func NewUser(id UserId, name UserName, userTpe UserType) *User {
