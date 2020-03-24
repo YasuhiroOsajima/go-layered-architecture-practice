@@ -17,6 +17,10 @@ func NewUserType(uType string) (UserType, error) {
 	return (UserType)(uType), nil
 }
 
+func NewUserNormal() UserType {
+	return Normal
+}
+
 func newNormalUserType() UserType {
 	normalUser, _ := NewUserType(Normal)
 	return normalUser

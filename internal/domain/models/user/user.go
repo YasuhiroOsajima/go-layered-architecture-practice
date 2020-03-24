@@ -10,6 +10,17 @@ func NewUser(id UserId, name UserName, userTpe UserType) *User {
 	return &User{id, name, userTpe}
 }
 
+func NewUserInit(name UserName) (*User, error) {
+	userId, err := NewUserIdRandom()
+	if err != nil {
+		return nil, err
+	}
+
+	userType := NewUserNormal()
+
+	return &User{userId, name, userType}, nil
+}
+
 func (u User) Equals(user *User) bool {
 	return u.id == user.id
 }
