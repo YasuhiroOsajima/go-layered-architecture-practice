@@ -1,14 +1,14 @@
 package user
 
 import (
-	"fmt"
+	"errors"
 	"go-layered-architecture-practice/internal/domain/models/user"
 	"go-layered-architecture-practice/internal/domain/services"
 )
 
 type UserApplicationService struct {
-	userRepo    user.UserRepositoryInterface
-	userService services.UserService
+	userRepository user.UserRepositoryInterface
+	userService    services.UserService
 }
 
 func NewUserApplicationService(repo user.UserRepositoryInterface, service services.UserService) UserApplicationService {
@@ -21,11 +21,20 @@ func (u UserApplicationService) Register(name string) error {
 		return err
 	}
 
-	newUser, err := user.NewUserInit(userName)
+	newUser, err := user.NewUserInit(userName, u.userRepository)
 	if err != nil {
 		return err
 	}
-	fmt.Println(newUser)
 
-	return nil
+	exists, err := u.userService.Exists(newUser)
+	if err != nil {
+		return err
+	}
+
+	if exists {
+		return errors.New("same name user is already exists")
+	}
+
+	err = u.userRepository.Save(newUser)
+	return err
 }

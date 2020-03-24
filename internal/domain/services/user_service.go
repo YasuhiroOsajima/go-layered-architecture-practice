@@ -11,12 +11,17 @@ func NewUserService(repository user.UserRepositoryInterface) UserService {
 }
 
 func (s UserService) Exists(targetUser *user.User) (bool, error) {
-	res, err := s.repository.Find(targetUser.Id())
+	// sameId, err := s.repository.Find(targetUser.Id())
+	// if err != nil {
+	// 	return false, err
+	// }
+
+	sameNames, err := s.repository.FindAll(targetUser.Name())
 	if err != nil {
 		return false, err
 	}
 
-	if res != nil {
+	if len(sameNames) != 0 {
 		return true, nil
 	} else {
 		return false, nil

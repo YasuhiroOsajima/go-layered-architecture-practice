@@ -10,8 +10,8 @@ func NewUser(id UserId, name UserName, userTpe UserType) *User {
 	return &User{id, name, userTpe}
 }
 
-func NewUserInit(name UserName) (*User, error) {
-	userId, err := NewUserIdRandom()
+func NewUserInit(name UserName, repo UserRepositoryInterface) (*User, error) {
+	userId, err := NewUserIdRandom(repo)
 	if err != nil {
 		return nil, err
 	}

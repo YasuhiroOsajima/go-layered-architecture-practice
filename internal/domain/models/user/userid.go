@@ -16,11 +16,25 @@ func NewUserId(id string) (UserId, error) {
 	return (UserId)(id), nil
 }
 
-func NewUserIdRandom() (UserId, error) {
+func NewUserIdRandom(repo UserRepositoryInterface) (UserId, error) {
 	var userId UserId
-	randomId, err := uuid.NewRandom()
-	if err != nil {
-		return userId, err
+
+	for {
+		randomId, err := uuid.NewRandom()
+		if err != nil {
+			return userId, err
+		}
+
+		userId := (UserId)(randomId.String())
+		found, err := repo.Find(userId)
+		if err != nil {
+			return userId, err
+		}
+
+		if found == nil {
+			break
+		}
 	}
-	return (UserId)(randomId.String()), nil
+
+	return userId, nil
 }
