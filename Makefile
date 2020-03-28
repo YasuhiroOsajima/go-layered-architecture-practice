@@ -1,6 +1,6 @@
 DBFILE = test.db
-DBDIR = ./internal/repository/sqlite
-#DBDIR = .
+#DBDIR = ./internal/repository/sqlite
+DBDIR = .
 DBPATH = ${DBDIR}/${DBFILE}
 FILEEXISTS = $(shell ls ${DBDIR} | grep ${DBFILE})
 
@@ -19,4 +19,10 @@ ifeq (${FILEEXISTS}, ${DBFILE})
 endif
 
 addtestuser: setupdb
-	@sqlite3 ${DBFILE} < scripts/insert_testuser.sql
+	@sqlite3 ${DBPATH} < scripts/insert_testuser.sql
+
+runapp:
+	@export SQLITE_PATH="`pwd`/test.db"; ./server.exe
+
+unittest:
+	@go test go-layered-architecture-practice/internal/repository/sqlite/user

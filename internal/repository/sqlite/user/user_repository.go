@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"os"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -10,7 +11,7 @@ import (
 	"go-layered-architecture-practice/internal/domain/models/user"
 )
 
-var dbFileName = "../test.db"
+var dbFileName = os.Getenv("SQLITE_PATH")
 
 type userRepository struct {
 	db *sqlx.DB
@@ -32,18 +33,20 @@ func (r userRepository) Save(targetUser *user.User) error {
 	}
 
 	if found == nil {
-		_, err = r.db.NamedExec("INSERT INTO `user` (`id`, `name`, `usertype`) VALUES (:uid, :uname, :utype);",
+		_, err = r.db.NamedExec("INSERT INTO `user` (`id`, `name`, `mailaddress`, `usertype`) VALUES (:uid, :uname, :umail, :utype);",
 			map[string]interface{}{
 				"uid":   targetUser.Id(),
 				"uname": targetUser.Name(),
+				"umail": targetUser.MailAddress(),
 				"utype": targetUser.Type(),
 			})
 		return err
 	} else {
-		_, err = r.db.NamedExec("UPDATE `user` SET `name`=:uname, `usertype`=:utype WHERE `id`=:uid;",
+		_, err = r.db.NamedExec("UPDATE `user` SET `name`=:uname, `mailaddress`=:umail, `usertype`=:utype WHERE `id`=:uid;",
 			map[string]interface{}{
 				"uid":   targetUser.Id(),
 				"uname": targetUser.Name(),
+				"umail": targetUser.MailAddress(),
 				"utype": targetUser.Type(),
 			})
 		return err
