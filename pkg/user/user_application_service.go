@@ -91,18 +91,66 @@ func (u UserApplicationService) Update(command UserUpdateCommand) error {
 	return nil
 }
 
-func (u UserApplicationService) Get(id string) (UserData, error) {
+func (u UserApplicationService) Get(command UserGetCommand) (UserData, error) {
 	var userData UserData
+
+	id, idErr := command.GetId()
+	name, nameErr := command.GetName()
+
+	if idErr != nil {
+		userId, err := user_model.NewUserId(id)
+		if err != nil {
+			return userData, err
+		}
+
+		user, err := u.userRepository.Find(userId)
+		if err != nil {
+			return userData, err
+		}
+		userData = NewUserData(user)
+
+	} else if nameErr != nil {
+		userName, err := user_model.NewUserName(name)
+		if err != nil {
+			return userData, err
+		}
+
+		users, err := u.userRepository.FindAll(userName)
+		if err != nil {
+			return userData, err
+		}
+
+		if len(users) == 0 {
+			return userData, errors.New("target user is not found")
+		}
+
+		if len(users) != 1 {
+			return userData, errors.New("target user name is duplicated")
+		}
+		user := users[0]
+		userData = NewUserData(user)
+
+	} else {
+		return userData, errors.New("both arguments were not specified")
+	}
+
+	return userData, nil
+}
+
+func (u UserApplicationService) Delete(id string) error {
 	userId, err := user_model.NewUserId(id)
 	if err != nil {
-		return userData, err
+		return err
 	}
 
 	user, err := u.userRepository.Find(userId)
 	if err != nil {
-		return userData, err
+		return err
 	}
 
-	userData = NewUserData(user)
-	return userData, nil
+	err = u.userRepository.Delete(user)
+	if err != nil {
+		return err
+	}
+	return nil
 }

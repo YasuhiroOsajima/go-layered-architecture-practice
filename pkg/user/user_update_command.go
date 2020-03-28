@@ -9,7 +9,7 @@ type UserUpdateCommand struct {
 }
 
 func NewUserUpdateCommand(id string) UserUpdateCommand {
-	return UserUpdateCommand{id, nil, nil}
+	return UserUpdateCommand{id, "", ""}
 }
 
 func (c UserUpdateCommand) GetId() string {
