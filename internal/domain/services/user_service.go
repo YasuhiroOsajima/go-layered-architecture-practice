@@ -11,11 +11,6 @@ func NewUserService(repository user.UserRepositoryInterface) UserService {
 }
 
 func (s UserService) Exists(targetUser *user.User) (bool, error) {
-	// sameId, err := s.repository.Find(targetUser.Id())
-	// if err != nil {
-	// 	return false, err
-	// }
-
 	sameNames, err := s.repository.FindAll(targetUser.Name())
 	if err != nil {
 		return false, err

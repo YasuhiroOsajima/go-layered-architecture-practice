@@ -39,6 +39,35 @@ func (u UserApplicationService) Register(name string) error {
 	return err
 }
 
+func (u UserApplicationService) Update(id, name string) error {
+	userId, err := user_model.NewUserId(id)
+	if err != nil {
+		return err
+	}
+
+	userName, err := user_model.NewUserName(name)
+	if err != nil {
+		return err
+	}
+
+	user, err := u.userRepository.Find(userId)
+	if err != nil {
+		return err
+	}
+
+	user.ChangeName(userName)
+	found, err := u.userService.Exists(user)
+	if err != nil {
+		return err
+	}
+
+	if found {
+		return errors.New("same name user is already exists")
+	}
+
+	return nil
+}
+
 func (u UserApplicationService) Get(Id string) (UserData, error) {
 	var userData UserData
 	userId, err := user_model.NewUserId(Id)
