@@ -15,13 +15,18 @@ func NewUserApplicationService(repo user_model.UserRepositoryInterface, service 
 	return UserApplicationService{repo, service}
 }
 
-func (u UserApplicationService) Register(name string) error {
+func (u UserApplicationService) Register(name, mailAddress string) error {
 	userName, err := user_model.NewUserName(name)
 	if err != nil {
 		return err
 	}
 
-	newUser, err := user_model.NewUserInit(userName, u.userRepository)
+	userMailAddress, err := user_model.NewUserMailAddress(mailAddress)
+	if err != nil {
+		return err
+	}
+
+	newUser, err := user_model.NewUserInit(userName, userMailAddress, u.userRepository)
 	if err != nil {
 		return err
 	}
@@ -39,13 +44,8 @@ func (u UserApplicationService) Register(name string) error {
 	return err
 }
 
-func (u UserApplicationService) Update(id, name string) error {
-	userId, err := user_model.NewUserId(id)
-	if err != nil {
-		return err
-	}
-
-	userName, err := user_model.NewUserName(name)
+func (u UserApplicationService) Update(command UserUpdateCommand) error {
+	userId, err := user_model.NewUserId(command.GetId())
 	if err != nil {
 		return err
 	}
@@ -55,22 +55,45 @@ func (u UserApplicationService) Update(id, name string) error {
 		return err
 	}
 
-	user.ChangeName(userName)
-	found, err := u.userService.Exists(user)
+	nameArg, err := command.GetName()
 	if err != nil {
-		return err
+		userName, err := user_model.NewUserName(nameArg)
+		if err != nil {
+			return err
+		}
+
+		user.ChangeName(userName)
+
+		found, err := u.userService.Exists(user)
+		if err != nil {
+			return err
+		}
+		if found {
+			return errors.New("same name user is already exists")
+		}
 	}
 
-	if found {
-		return errors.New("same name user is already exists")
+	mailAddress, err := command.GetMailAddress()
+	if err != nil {
+		userMailAddress, err := user_model.NewUserMailAddress(mailAddress)
+		if err != nil {
+			return err
+		}
+
+		user.ChangeMailAddress(userMailAddress)
+	}
+
+	err = u.userRepository.Save(user)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (u UserApplicationService) Get(Id string) (UserData, error) {
+func (u UserApplicationService) Get(id string) (UserData, error) {
 	var userData UserData
-	userId, err := user_model.NewUserId(Id)
+	userId, err := user_model.NewUserId(id)
 	if err != nil {
 		return userData, err
 	}

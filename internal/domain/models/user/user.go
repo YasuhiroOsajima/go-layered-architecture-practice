@@ -1,16 +1,17 @@
 package user
 
 type User struct {
-	id       UserId
-	name     UserName
-	userType UserType
+	id          UserId
+	name        UserName
+	mailAddress UserMailAddress
+	userType    UserType
 }
 
-func NewUser(id UserId, name UserName, userTpe UserType) *User {
-	return &User{id, name, userTpe}
+func NewUser(id UserId, name UserName, mailAddress UserMailAddress, userTpe UserType) *User {
+	return &User{id, name, mailAddress, userTpe}
 }
 
-func NewUserInit(name UserName, repo UserRepositoryInterface) (*User, error) {
+func NewUserInit(name UserName, mailAddress UserMailAddress, repo UserRepositoryInterface) (*User, error) {
 	userId, err := NewUserIdRandom(repo)
 	if err != nil {
 		return nil, err
@@ -18,7 +19,7 @@ func NewUserInit(name UserName, repo UserRepositoryInterface) (*User, error) {
 
 	userType := NewUserNormal()
 
-	return &User{userId, name, userType}, nil
+	return &User{userId, name, mailAddress, userType}, nil
 }
 
 func (u User) Equals(user *User) bool {
@@ -33,6 +34,10 @@ func (u User) Name() UserName {
 	return u.name
 }
 
+func (u User) MailAddress() UserMailAddress {
+	return u.mailAddress
+}
+
 func (u User) Type() UserType {
 	return u.userType
 }
@@ -44,6 +49,10 @@ func (u User) IsPremium() bool {
 
 func (u *User) ChangeName(name UserName) {
 	u.name = name
+}
+
+func (u *User) ChangeMailAddress(mailAddress UserMailAddress) {
+	u.mailAddress = mailAddress
 }
 
 func (u *User) Upgrade() {
