@@ -9,8 +9,9 @@ import (
 func TestSqliteUserRepository(t *testing.T) {
 	userName1, _ := user_model.NewUserName("xxx")
 	userId1, _ := user_model.NewUserId("99")
+	userMail1, _ := user_model.NewUserMailAddress("test@sample.hoge")
 	userType1, _ := user_model.NewUserType(user_model.Normal)
-	newUser1 := user_model.NewUser(userId1, userName1, userType1)
+	newUser1 := user_model.NewUser(userId1, userName1, userMail1, userType1)
 
 	userRepository, err := NewUserRepository()
 	if err != nil {

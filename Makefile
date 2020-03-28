@@ -1,5 +1,6 @@
 DBFILE = test.db
-DBDIR = ./internal/repository/sqlite
+# DBDIR = ./internal/repository/sqlite
+DBDIR = .
 DBPATH = ${DBDIR}/${DBFILE}
 FILEEXISTS = $(shell ls ${DBDIR} | grep ${DBFILE})
 

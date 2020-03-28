@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+
 	user_model "go-layered-architecture-practice/internal/domain/models/user"
 	"go-layered-architecture-practice/internal/domain/services"
 )

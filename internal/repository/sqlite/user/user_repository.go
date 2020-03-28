@@ -51,8 +51,8 @@ func (r userRepository) Save(targetUser *user.User) error {
 }
 
 func (r userRepository) Find(targetUserId user.UserId) (*user.User, error) {
-	var id, name, usertype string
-	err := r.db.QueryRow("SELECT * FROM `user` WHERE `id`=?;", targetUserId).Scan(&id, &name, &usertype)
+	var id, name, mailaddress, usertype string
+	err := r.db.QueryRow("SELECT * FROM `user` WHERE `id`=?;", targetUserId).Scan(&id, &name, &mailaddress, &usertype)
 	if err != nil {
 		if err != sql.ErrNoRows && !strings.HasPrefix(err.Error(), "could not find name ") {
 			return nil, err
@@ -63,7 +63,8 @@ func (r userRepository) Find(targetUserId user.UserId) (*user.User, error) {
 	uid, _ := user.NewUserId(id)
 	uname, _ := user.NewUserName(name)
 	utype, _ := user.NewUserType(usertype)
-	targetUser := user.NewUser(uid, uname, utype)
+	umail, _ := user.NewUserMailAddress(mailaddress)
+	targetUser := user.NewUser(uid, uname, umail, utype)
 	return targetUser, nil
 }
 
@@ -75,15 +76,16 @@ func (r userRepository) FindAll(targetUserName user.UserName) ([]*user.User, err
 
 	var users []*user.User
 	for rows.Next() {
-		var id, name, usertype string
-		err = rows.Scan(id, name, usertype)
+		var id, name, mailaddress, usertype string
+		err = rows.Scan(id, name, mailaddress, usertype)
 		if err != nil {
 			return nil, err
 		}
 		uid, _ := user.NewUserId(id)
 		uname, _ := user.NewUserName(name)
 		utype, _ := user.NewUserType(usertype)
-		users = append(users, user.NewUser(uid, uname, utype))
+		umail, _ := user.NewUserMailAddress(mailaddress)
+		users = append(users, user.NewUser(uid, uname, umail, utype))
 	}
 
 	return users, nil
