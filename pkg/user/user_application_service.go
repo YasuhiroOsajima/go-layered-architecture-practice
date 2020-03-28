@@ -39,16 +39,18 @@ func (u UserApplicationService) Register(name string) error {
 	return err
 }
 
-func (u UserApplicationService) Get(Id string) (*user_model.User, error) {
+func (u UserApplicationService) Get(Id string) (UserData, error) {
+	var userData UserData
 	userId, err := user_model.NewUserId(Id)
 	if err != nil {
-		return nil, err
+		return userData, err
 	}
 
 	user, err := u.userRepository.Find(userId)
 	if err != nil {
-		return nil, err
+		return userData, err
 	}
 
-	return user, nil
+	userData = NewUserData(user)
+	return userData, nil
 }

@@ -38,3 +38,7 @@ func NewUserIdRandom(repo UserRepositoryInterface) (UserId, error) {
 
 	return userId, nil
 }
+
+func (i UserId) AsString() string {
+	return string(i)
+}

@@ -30,3 +30,7 @@ func newPremiumUserType() UserType {
 	premiumUser, _ := NewUserType(Premium)
 	return premiumUser
 }
+
+func (t UserType) AsString() string {
+	return string(t)
+}
