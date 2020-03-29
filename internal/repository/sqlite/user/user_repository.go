@@ -111,6 +111,23 @@ func (r UserRepository) FindAll(targetUserName user.UserName) ([]*user.User, err
 	return users, nil
 }
 func (r *UserRepository) Delete(targetUser *user.User) error {
-	_, err := r.db.NamedExec("DELETE FROM `user` WHERE `id`=:id;", targetUser)
+	tx, err := r.db.Beginx()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.NamedExec("DELETE FROM `user` WHERE `id`=:id;", targetUser)
+
+	var txErr error
+	if err != nil {
+		txErr = tx.Rollback()
+	} else {
+		txErr = tx.Commit()
+	}
+
+	if err == nil && txErr != nil {
+		return txErr
+	}
+
 	return err
 }
