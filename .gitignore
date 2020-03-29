@@ -11,3 +11,5 @@ test.db
 
 server
 server.exe
+command
+command.exe

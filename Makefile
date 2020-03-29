@@ -22,7 +22,7 @@ addtestuser: setupdb
 
 build:
 	@wire cmd/wire.go
-	@go build cmd/server.go cmd/wire_gen.go
+	@go build cmd/command.go cmd/wire_gen.go
 
 runapp:
 	@export SQLITE_PATH="`pwd`/test.db"; ./server.exe
