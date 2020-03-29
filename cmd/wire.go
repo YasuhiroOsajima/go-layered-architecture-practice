@@ -10,7 +10,7 @@ import (
 	sqlite_user_repo "go-layered-architecture-practice/internal/repository/sqlite/user"
 )
 
-func InitializeSQLiteUserRepository() user_model.UserRepositoryInterface {
+func InitializeUserRepository() user_model.UserRepositoryInterface {
 	wire.Build(
 		wire.InterfaceValue(new(user_model.UserRepositoryInterface), sqlite_user_repo.NewUserRepository()),
 	)
@@ -18,7 +18,7 @@ func InitializeSQLiteUserRepository() user_model.UserRepositoryInterface {
 	return nil
 }
 
-func InitializeSQLiteUserService() (userService services.UserService) {
+func InitializeUserService() (userService services.UserService) {
 	wire.Build(
 		wire.InterfaceValue(new(user_model.UserRepositoryInterface), sqlite_user_repo.NewUserRepository()),
 		services.NewUserService,

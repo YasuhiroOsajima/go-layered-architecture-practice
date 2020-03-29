@@ -25,7 +25,7 @@ build:
 	@go build cmd/command.go cmd/wire_gen.go
 
 runapp:
-	@export SQLITE_PATH="`pwd`/test.db"; ./server.exe
+	@export SQLITE_PATH="`pwd`/test.db"; ./command.exe
 
 unittest:
 	@go test go-layered-architecture-practice/internal/repository/sqlite/user
