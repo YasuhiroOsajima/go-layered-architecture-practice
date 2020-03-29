@@ -25,18 +25,16 @@ func NewUserIdRandom(repo UserRepositoryInterface) (UserId, error) {
 			return userId, err
 		}
 
-		userId := (UserId)(randomId.String())
+		userId = (UserId)(randomId.String())
 		found, err := repo.Find(userId)
 		if err != nil {
 			return userId, err
 		}
 
 		if found == nil {
-			break
+			return userId, nil
 		}
 	}
-
-	return userId, nil
 }
 
 func (i UserId) AsString() string {

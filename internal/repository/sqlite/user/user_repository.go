@@ -80,10 +80,11 @@ func (r UserRepository) FindAll(targetUserName user.UserName) ([]*user.User, err
 	var users []*user.User
 	for rows.Next() {
 		var id, name, mailaddress, usertype string
-		err = rows.Scan(id, name, mailaddress, usertype)
+		err = rows.Scan(&id, &name, &mailaddress, &usertype)
 		if err != nil {
 			return nil, err
 		}
+
 		uid, _ := user.NewUserId(id)
 		uname, _ := user.NewUserName(name)
 		utype, _ := user.NewUserType(usertype)

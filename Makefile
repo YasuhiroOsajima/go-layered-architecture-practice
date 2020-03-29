@@ -1,5 +1,4 @@
 DBFILE = test.db
-#DBDIR = ./internal/repository/sqlite
 DBDIR = .
 DBPATH = ${DBDIR}/${DBFILE}
 FILEEXISTS = $(shell ls ${DBDIR} | grep ${DBFILE})
@@ -20,6 +19,10 @@ endif
 
 addtestuser: setupdb
 	@sqlite3 ${DBPATH} < scripts/insert_testuser.sql
+
+build:
+	@wire cmd/wire.go
+	@go build cmd/server.go cmd/wire_gen.go
 
 runapp:
 	@export SQLITE_PATH="`pwd`/test.db"; ./server.exe
