@@ -1,10 +1,6 @@
 package user
 
-import (
-	"errors"
-
-	"github.com/google/uuid"
-)
+import "errors"
 
 type UserId string
 
@@ -14,27 +10,6 @@ func NewUserId(id string) (UserId, error) {
 	}
 
 	return (UserId)(id), nil
-}
-
-func NewUserIdRandom(repo UserRepositoryInterface) (UserId, error) {
-	var userId UserId
-
-	for {
-		randomId, err := uuid.NewRandom()
-		if err != nil {
-			return userId, err
-		}
-
-		userId = (UserId)(randomId.String())
-		found, err := repo.Find(userId)
-		if err != nil {
-			return userId, err
-		}
-
-		if found == nil {
-			return userId, nil
-		}
-	}
 }
 
 func (i UserId) AsString() string {

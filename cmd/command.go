@@ -11,7 +11,8 @@ import (
 func main() {
 	sqlite := InitializeUserRepository()
 	userService := InitializeUserService()
-	app := user_app.NewUserApplicationService(sqlite, userService)
+	userFactory := InitializeUserFactory()
+	app := user_app.NewUserApplicationService(sqlite, userService, userFactory)
 
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -40,7 +41,7 @@ func main() {
 		fmt.Println("--------------------------------")
 
 		fmt.Println("continue? (y/n)")
-		fmt.Println("> ")
+		fmt.Print("> ")
 		scanner.Scan()
 		yOrN := scanner.Text()
 		if yOrN == "n" {

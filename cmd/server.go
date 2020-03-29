@@ -9,8 +9,9 @@ import (
 func main() {
 	sqlite := InitializeUserRepository()
 	userService := InitializeUserService()
+	userFactory := InitializeUserFactory()
 
-	app := user_app.NewUserApplicationService(sqlite, userService)
+	app := user_app.NewUserApplicationService(sqlite, userService, userFactory)
 	err := app.Register("aaa", "test@sample.hoge")
 	if err != nil {
 		fmt.Println(err)

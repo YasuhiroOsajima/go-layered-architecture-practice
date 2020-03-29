@@ -10,10 +10,11 @@ import (
 type UserApplicationService struct {
 	userRepository user_model.UserRepositoryInterface
 	userService    services.UserService
+	userFactory    services.UserFactory
 }
 
-func NewUserApplicationService(repo user_model.UserRepositoryInterface, service services.UserService) UserApplicationService {
-	return UserApplicationService{repo, service}
+func NewUserApplicationService(repo user_model.UserRepositoryInterface, service services.UserService, factory services.UserFactory) UserApplicationService {
+	return UserApplicationService{repo, service, factory}
 }
 
 func (u UserApplicationService) Register(name, mailAddress string) error {
@@ -27,7 +28,7 @@ func (u UserApplicationService) Register(name, mailAddress string) error {
 		return err
 	}
 
-	newUser, err := user_model.NewUserInit(userName, userMailAddress, u.userRepository)
+	newUser, err := u.userFactory.Create(userName, userMailAddress)
 	if err != nil {
 		return err
 	}

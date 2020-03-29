@@ -11,17 +11,6 @@ func NewUser(id UserId, name UserName, mailAddress UserMailAddress, userTpe User
 	return &User{id, name, mailAddress, userTpe}
 }
 
-func NewUserInit(name UserName, mailAddress UserMailAddress, repo UserRepositoryInterface) (*User, error) {
-	userId, err := NewUserIdRandom(repo)
-	if err != nil {
-		return nil, err
-	}
-
-	userType := NewUserNormal()
-
-	return &User{userId, name, mailAddress, userType}, nil
-}
-
 func (u User) Equals(user *User) bool {
 	return u.id == user.id
 }

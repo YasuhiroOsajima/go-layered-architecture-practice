@@ -26,3 +26,12 @@ func InitializeUserService() (userService services.UserService) {
 
 	return userService
 }
+
+func InitializeUserFactory() (userFactory services.UserFactory) {
+	wire.Build(
+		wire.InterfaceValue(new(user_model.UserRepositoryInterface), sqlite_user_repo.NewUserRepository()),
+		services.NewUserFactory,
+	)
+
+	return userFactory
+}
