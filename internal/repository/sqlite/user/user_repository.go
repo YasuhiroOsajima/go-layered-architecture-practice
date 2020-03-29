@@ -13,20 +13,20 @@ import (
 
 var dbFileName = os.Getenv("SQLITE_PATH")
 
-type userRepository struct {
+type UserRepository struct {
 	db *sqlx.DB
 }
 
-func NewUserRepository() *userRepository {
+func NewUserRepository() *UserRepository {
 	db, err := sqlx.Connect("sqlite3", dbFileName)
 	if err != nil {
 		panic(err.Error)
 	}
 
-	return &userRepository{db}
+	return &UserRepository{db}
 }
 
-func (r userRepository) Save(targetUser *user.User) error {
+func (r UserRepository) Save(targetUser *user.User) error {
 	found, err := r.Find(targetUser.Id())
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func (r userRepository) Save(targetUser *user.User) error {
 	}
 }
 
-func (r userRepository) Find(targetUserId user.UserId) (*user.User, error) {
+func (r UserRepository) Find(targetUserId user.UserId) (*user.User, error) {
 	var id, name, mailaddress, usertype string
 	err := r.db.QueryRow("SELECT * FROM `user` WHERE `id`=?;", targetUserId).Scan(&id, &name, &mailaddress, &usertype)
 	if err != nil {
@@ -71,7 +71,7 @@ func (r userRepository) Find(targetUserId user.UserId) (*user.User, error) {
 	return targetUser, nil
 }
 
-func (r userRepository) FindAll(targetUserName user.UserName) ([]*user.User, error) {
+func (r UserRepository) FindAll(targetUserName user.UserName) ([]*user.User, error) {
 	rows, err := r.db.Query("SELECT * FROM `user` WHERE `name`=?;", targetUserName)
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
@@ -93,7 +93,7 @@ func (r userRepository) FindAll(targetUserName user.UserName) ([]*user.User, err
 
 	return users, nil
 }
-func (r *userRepository) Delete(targetUser *user.User) error {
+func (r *UserRepository) Delete(targetUser *user.User) error {
 	_, err := r.db.NamedExec("DELETE FROM `user` WHERE `id`=:id;", targetUser)
 	return err
 }
