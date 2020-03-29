@@ -9,8 +9,8 @@ import (
 )
 
 func main() {
-	sqlite := InitializeUserRepository()
-	userService := InitializeUserService()
+	sqlite := InitializeSQLiteUserRepository()
+	userService := InitializeSQLiteUserService()
 	app := user_app.NewUserApplicationService(sqlite, userService)
 
 	scanner := bufio.NewScanner(os.Stdin)

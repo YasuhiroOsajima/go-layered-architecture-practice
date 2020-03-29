@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	sqlite := InitializeUserRepository()
-	userService := InitializeUserService()
+	sqlite := InitializeSQLiteUserRepository()
+	userService := InitializeSQLiteUserService()
 
 	app := user_app.NewUserApplicationService(sqlite, userService)
 	err := app.Register("aaa", "test@sample.hoge")
