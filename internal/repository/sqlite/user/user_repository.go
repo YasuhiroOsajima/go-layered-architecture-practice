@@ -17,13 +17,13 @@ type userRepository struct {
 	db *sqlx.DB
 }
 
-func NewUserRepository() (*userRepository, error) {
+func NewUserRepository() *userRepository {
 	db, err := sqlx.Connect("sqlite3", dbFileName)
 	if err != nil {
-		return nil, err
+		panic(err.Error)
 	}
 
-	return &userRepository{db}, nil
+	return &userRepository{db}
 }
 
 func (r userRepository) Save(targetUser *user.User) error {

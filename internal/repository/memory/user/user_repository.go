@@ -6,9 +6,9 @@ type userRepository struct {
 	db []*user.User
 }
 
-func NewUserRepository() (*userRepository, error) {
+func NewUserRepository() *userRepository {
 	var db []*user.User
-	return &userRepository{db}, nil
+	return &userRepository{db}
 }
 
 func (r *userRepository) Save(targetUser *user.User) error {

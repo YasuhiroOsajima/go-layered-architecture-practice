@@ -9,15 +9,11 @@ import (
 )
 
 func main() {
-	inMemory, err := user_repo.NewUserRepository()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	userService := services.NewUserService(inMemory)
+	sqlite := user_repo.NewUserRepository()
+	userService := services.NewUserService(sqlite)
 
-	app := user_app.NewUserApplicationService(inMemory, userService)
-	err = app.Register("aaa", "test@sample.hoge")
+	app := user_app.NewUserApplicationService(sqlite, userService)
+	err := app.Register("aaa", "test@sample.hoge")
 	if err != nil {
 		fmt.Println(err)
 		return

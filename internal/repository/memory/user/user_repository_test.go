@@ -13,12 +13,9 @@ func TestSqliteUserRepository(t *testing.T) {
 	userType1, _ := user_model.NewUserType(user_model.Normal)
 	newUser1 := user_model.NewUser(userId1, userName1, userMail1, userType1)
 
-	userRepository, err := NewUserRepository()
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	userRepository := NewUserRepository()
 
-	err = userRepository.Save(newUser1)
+	err := userRepository.Save(newUser1)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
