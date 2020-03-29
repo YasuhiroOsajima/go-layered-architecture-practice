@@ -26,31 +26,47 @@ func NewUserRepository() *UserRepository {
 	return &UserRepository{db}
 }
 
-func (r UserRepository) Save(targetUser *user.User) error {
+func (r UserRepository) Save(targetUser *user.User) (err error) {
 	found, err := r.Find(targetUser.Id())
 	if err != nil {
 		return err
 	}
 
-	if found == nil {
-		_, err = r.db.NamedExec("INSERT INTO `user` (`id`, `name`, `mailaddress`, `usertype`) VALUES (:uid, :uname, :umail, :utype);",
-			map[string]interface{}{
-				"uid":   targetUser.Id(),
-				"uname": targetUser.Name(),
-				"umail": targetUser.MailAddress(),
-				"utype": targetUser.Type(),
-			})
-		return err
-	} else {
-		_, err = r.db.NamedExec("UPDATE `user` SET `name`=:uname, `mailaddress`=:umail, `usertype`=:utype WHERE `id`=:uid;",
-			map[string]interface{}{
-				"uid":   targetUser.Id(),
-				"uname": targetUser.Name(),
-				"umail": targetUser.MailAddress(),
-				"utype": targetUser.Type(),
-			})
+	tx, err := r.db.Beginx()
+	if err != nil {
 		return err
 	}
+
+	if found == nil {
+		_, err = tx.NamedExec("INSERT INTO `user` (`id`, `name`, `mailaddress`, `usertype`) VALUES (:uid, :uname, :umail, :utype);",
+			map[string]interface{}{
+				"uid":   targetUser.Id(),
+				"uname": targetUser.Name(),
+				"umail": targetUser.MailAddress(),
+				"utype": targetUser.Type(),
+			})
+	} else {
+		_, err = tx.NamedExec("UPDATE `user` SET `name`=:uname, `mailaddress`=:umail, `usertype`=:utype WHERE `id`=:uid;",
+			map[string]interface{}{
+				"uid":   targetUser.Id(),
+				"uname": targetUser.Name(),
+				"umail": targetUser.MailAddress(),
+				"utype": targetUser.Type(),
+			})
+	}
+
+	var txErr error
+	if err != nil {
+		txErr = tx.Rollback()
+	} else {
+		txErr = tx.Commit()
+	}
+
+	if err == nil && txErr != nil {
+		return txErr
+	}
+
+	return err
 }
 
 func (r UserRepository) Find(targetUserId user.UserId) (*user.User, error) {
