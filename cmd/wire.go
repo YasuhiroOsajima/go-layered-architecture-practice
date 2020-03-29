@@ -10,9 +10,9 @@ import (
 	user_repo "go-layered-architecture-practice/internal/repository/sqlite/user"
 )
 
-func InitializeUserRepository() *user_repo.UserRepository {
+func InitializeUserRepository() user_model.UserRepositoryInterface {
 	wire.Build(
-		user_repo.NewUserRepository,
+		wire.InterfaceValue(new(user_model.UserRepositoryInterface), user_repo.NewUserRepository()),
 	)
 
 	return nil
