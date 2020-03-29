@@ -21,7 +21,7 @@ addtestuser: setupdb
 	@sqlite3 ${DBPATH} < scripts/insert_testuser.sql
 
 build:
-	@wire cmd/wire.go
+	@wire cmd/wire_sqlite.go
 	@go build cmd/command.go cmd/wire_gen.go
 
 runapp:
