@@ -4,7 +4,7 @@ import "errors"
 
 type CircleName string
 
-func NewClassName(name string) (CircleName, error) {
+func NewCircleName(name string) (CircleName, error) {
 	if name == "" {
 		return "", errors.New("circleName is not specified")
 	}

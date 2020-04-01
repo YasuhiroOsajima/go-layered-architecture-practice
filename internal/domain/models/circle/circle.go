@@ -9,11 +9,11 @@ import (
 type Circle struct {
 	id      CircleId
 	name    CircleName
-	owner   user.User
-	members []user.User
+	owner   *user.User
+	members []*user.User
 }
 
-func NewCircle(id CircleId, name CircleName, owner user.User, members []user.User) *Circle {
+func NewCircle(id CircleId, name CircleName, owner *user.User, members []*user.User) *Circle {
 	return &Circle{id, name, owner, members}
 }
 
@@ -29,11 +29,11 @@ func (c Circle) Name() CircleName {
 	return c.name
 }
 
-func (c Circle) Owner() user.User {
+func (c Circle) Owner() *user.User {
 	return c.owner
 }
 
-func (c Circle) Members() []user.User {
+func (c Circle) Members() []*user.User {
 	return c.members
 }
 
@@ -45,7 +45,7 @@ func (c Circle) CountMembers() int {
 	return len(c.members) + 1
 }
 
-func (c *Circle) Join(user user.User) error {
+func (c *Circle) Join(user *user.User) error {
 	if c.IsFull() {
 		return errors.New("circle has full count of members")
 	}

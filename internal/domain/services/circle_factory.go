@@ -13,6 +13,6 @@ func NewCircleFactory(repository circle.CircleRepositoryInterface) CircleFactory
 	return CircleFactory{repository}
 }
 
-func (f CircleFactory) Create(name circle.CircleName, owner user.User) (*circle.Circle, error) {
+func (f CircleFactory) Create(name circle.CircleName, owner *user.User) (*circle.Circle, error) {
 	return nil, nil
 }
