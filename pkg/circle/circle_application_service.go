@@ -60,6 +60,39 @@ func (c CircleApplicationService) Create(name, userId string) error {
 	return nil
 }
 
+func (c CircleApplicationService) Update(id, name string) error {
+	circleId, err := circle_model.NewCircleId(id)
+	if err != nil {
+		return err
+	}
+
+	circle, err := c.circleRepository.Find(circleId)
+	if err != nil {
+		return err
+	}
+
+	circleName, err := circle_model.NewCircleName(name)
+	if err != nil {
+		return err
+	}
+
+	circle.ChangeName(circleName)
+	found, err := c.circleService.Exists(circle)
+	if err != nil {
+		return err
+	}
+	if found {
+		return errors.New("same name circle is already exists")
+	}
+
+	err = c.circleRepository.Save(circle)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c CircleApplicationService) Join(circleId, userId string) error {
 	targetUserId, err := user.NewUserId(userId)
 	if err != nil {

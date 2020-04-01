@@ -29,6 +29,10 @@ func (c Circle) Name() CircleName {
 	return c.name
 }
 
+func (c Circle) ChangeName(name CircleName) {
+	c.name = name
+}
+
 func (c Circle) Owner() *user.User {
 	return c.owner
 }
