@@ -11,3 +11,7 @@ func NewCircleId(id string) (CircleId, error) {
 
 	return (CircleId)(id), nil
 }
+
+func (i CircleId) AsString() string {
+	return string(i)
+}

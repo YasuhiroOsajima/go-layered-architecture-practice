@@ -11,3 +11,7 @@ func NewClassName(name string) (CircleName, error) {
 
 	return (CircleName)(name), nil
 }
+
+func (n CircleName) AsString() string {
+	return string(n)
+}
