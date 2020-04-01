@@ -2,19 +2,19 @@ package circle
 
 import (
 	"errors"
-	"go-layered-architecture-practice/internal/domain/models/circle"
+	circle_model "go-layered-architecture-practice/internal/domain/models/circle"
 	"go-layered-architecture-practice/internal/domain/models/user"
 	"go-layered-architecture-practice/internal/domain/services"
 )
 
 type CircleApplicationService struct {
-	circleRepository circle.CircleRepositoryInterface
+	circleRepository circle_model.CircleRepositoryInterface
 	circleService    services.CircleService
 	circleFactory    services.CircleFactory
 	userRepository   user.UserRepositoryInterface
 }
 
-func NewCircleApplicationService(circleRepo circle.CircleRepositoryInterface, service services.CircleService, factory services.CircleFactory, userRepo user.UserRepositoryInterface) CircleApplicationService {
+func NewCircleApplicationService(circleRepo circle_model.CircleRepositoryInterface, service services.CircleService, factory services.CircleFactory, userRepo user.UserRepositoryInterface) CircleApplicationService {
 	return CircleApplicationService{circleRepo, service, factory, userRepo}
 }
 
@@ -32,17 +32,17 @@ func (c CircleApplicationService) Create(name, userId string) error {
 		return errors.New("specified owner user is not exists")
 	}
 
-	circleName, err := circle.NewCircleName(name)
+	circleName, err := circle_model.NewCircleName(name)
 	if err != nil {
 		return err
 	}
 
-	circle, err := c.circleFactory.Create(circleName, owner)
+	newCircle, err := c.circleFactory.Create(circleName, owner)
 	if err != nil {
 		return err
 	}
 
-	exists, err := c.circleService.Exists(circle)
+	exists, err := c.circleService.Exists(newCircle)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (c CircleApplicationService) Create(name, userId string) error {
 
 	}
 
-	err = c.circleRepository.Save(circle)
+	err = c.circleRepository.Save(newCircle)
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func (c CircleApplicationService) Join(circleId, userId string) error {
 		return errors.New("specified user is not exists")
 	}
 
-	targetCircleId, err := circle.NewCircleId(circleId)
+	targetCircleId, err := circle_model.NewCircleId(circleId)
 	if err != nil {
 		return err
 	}
@@ -102,4 +102,55 @@ func (c CircleApplicationService) Join(circleId, userId string) error {
 	}
 
 	return nil
+}
+
+func (c CircleApplicationService) Get(command CircleGetCommand) (CircleData, error) {
+	var circleData CircleData
+
+	id, idErr := command.GetId()
+	name, nameErr := command.GetName()
+
+	if idErr != nil {
+		circleId, err := circle_model.NewCircleId(id)
+		if err != nil {
+			return circleData, err
+		}
+
+		circle, err := c.circleRepository.Find(circleId)
+		if err != nil {
+			return circleData, err
+		}
+
+		if circle == nil {
+			return circleData, errors.New("target circle is not found")
+		}
+
+		circleData = NewCircleData(circle)
+
+	} else if nameErr != nil {
+		circleName, err := circle_model.NewCircleName(name)
+		if err != nil {
+			return circleData, err
+		}
+
+		circles, err := c.circleRepository.FindAll(circleName)
+		if err != nil {
+			return circleData, err
+		}
+		if len(circles) == 0 {
+			return circleData, errors.New("target circle is not found")
+		}
+
+		if len(circles) != 1 {
+			return circleData, errors.New("target circle name is duplicated")
+		}
+
+		circle := circles[0]
+		circleData = NewCircleData(circle)
+
+	} else {
+		return circleData, errors.New("both arguments were not specified")
+	}
+
+	return circleData, nil
 }

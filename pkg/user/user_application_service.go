@@ -109,6 +109,11 @@ func (u UserApplicationService) Get(command UserGetCommand) (UserData, error) {
 		if err != nil {
 			return userData, err
 		}
+
+		if user != nil {
+			return userData, errors.New("target user is not found")
+		}
+
 		userData = NewUserData(user)
 
 	} else if nameErr != nil {
@@ -129,6 +134,7 @@ func (u UserApplicationService) Get(command UserGetCommand) (UserData, error) {
 		if len(users) != 1 {
 			return userData, errors.New("target user name is duplicated")
 		}
+
 		user := users[0]
 		userData = NewUserData(user)
 
