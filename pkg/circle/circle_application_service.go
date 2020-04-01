@@ -87,7 +87,7 @@ func (c CircleApplicationService) Join(circleId, userId string) error {
 		return errors.New("specified circle is not exists")
 	}
 
-	if len(targetCircle.Members()) >= 29 {
+	if targetCircle.IsFull() {
 		return errors.New("target circle has full of members")
 	}
 
