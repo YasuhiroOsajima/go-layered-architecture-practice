@@ -17,8 +17,8 @@ func NewCircle(id CircleId, name CircleName, owner *user.User, members []*user.U
 	return &Circle{id, name, owner, members}
 }
 
-func (u Circle) Equals(user *Circle) bool {
-	return u.id == user.id
+func (c Circle) Equals(user *Circle) bool {
+	return c.id == user.id
 }
 
 func (c Circle) Id() CircleId {
@@ -33,8 +33,21 @@ func (c Circle) Owner() *user.User {
 	return c.owner
 }
 
+func (c Circle) OwnerId() user.UserId {
+	return c.owner.Id()
+}
+
 func (c Circle) Members() []*user.User {
 	return c.members
+}
+
+func (c Circle) MemberIds() []user.UserId {
+	var idList []user.UserId
+	for _, u := range c.members {
+		idList = append(idList, u.Id())
+	}
+
+	return idList
 }
 
 func (c Circle) IsFull() bool {
