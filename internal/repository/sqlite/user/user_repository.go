@@ -92,6 +92,9 @@ func (r UserRepository) FindAll(targetUserName user.UserName) ([]*user.User, err
 	if err != nil && err != sql.ErrNoRows {
 		return nil, err
 	}
+	if rows == nil {
+		return nil, nil
+	}
 
 	var users []*user.User
 	for rows.Next() {

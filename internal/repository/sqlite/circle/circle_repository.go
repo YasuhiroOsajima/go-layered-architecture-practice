@@ -3,11 +3,11 @@ package circle
 import (
 	"database/sql"
 	"errors"
+	mapset "github.com/deckarep/golang-set"
 	"os"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-
 	"go-layered-architecture-practice/internal/domain/models/circle"
 	"go-layered-architecture-practice/internal/domain/models/user"
 )
@@ -40,21 +40,102 @@ func (r CircleRepository) Save(targetCircle *circle.Circle) (err error) {
 	}
 
 	if found == nil {
-		_, err = tx.NamedExec("INSERT INTO `circle` (`id`, `name`, `owner`, `members`) VALUES (:cid, :cname, :owner, :members);",
+		_, err = tx.NamedExec("INSERT INTO `circle` (`id`, `name`, `owner`) VALUES (:cid, :cname, :owner);",
 			map[string]interface{}{
-				"cid":     targetCircle.Id(),
-				"cname":   targetCircle.Name(),
-				"owner":   targetCircle.OwnerId(),
-				"members": targetCircle.MemberIds(),
+				"cid":   targetCircle.Id(),
+				"cname": targetCircle.Name(),
+				"owner": targetCircle.OwnerId(),
 			})
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
 	} else {
-		_, err = tx.NamedExec("UPDATE `user` SET `name`=:uname, `owner`=:owner, `members`=:members WHERE `id`=:uid;",
+		_, err = tx.NamedExec("UPDATE `circle` SET `name`=:uname, `owner`=:owner WHERE `id`=:cid;",
 			map[string]interface{}{
-				"cid":     targetCircle.Id(),
-				"cname":   targetCircle.Name(),
-				"owner":   targetCircle.OwnerId(),
-				"members": targetCircle.MemberIds(),
+				"cid":   targetCircle.Id(),
+				"cname": targetCircle.Name(),
+				"owner": targetCircle.OwnerId(),
 			})
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	rows, err := tx.Query("SELECT `user_id` FROM `user_circle` WHERE `circle_id`=?;", targetCircle.Id())
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if (err != nil && err != sql.ErrNoRows) || (rows == nil) {
+		for _, m := range targetCircle.Members() {
+			_, err = tx.NamedExec("INSERT INTO `circle_id` (`user_id`, `circle_id`) VALUES (:uid, :uname, :cid);",
+				map[string]interface{}{
+					"uid": m.Id(),
+					"cid": targetCircle.Id(),
+				})
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	} else {
+		var targetMembers []user.UserId
+		for _, m := range targetCircle.Members() {
+			targetMembers = append(targetMembers, m.Id())
+		}
+
+		var dbMembers []user.UserId
+		for rows.Next() {
+			var userId string
+			err = rows.Scan(&userId)
+			if err != nil {
+				break
+			}
+
+			uid, err := user.NewUserId(userId)
+			if err != nil {
+				break
+			}
+			dbMembers = append(dbMembers, uid)
+		}
+
+		targetMembersSet := mapset.NewSet()
+		for _, m := range targetMembers {
+			targetMembersSet.Add(m)
+		}
+		dbMembersSet := mapset.NewSet()
+		for _, m := range dbMembers {
+			dbMembersSet.Add(m)
+		}
+		onlyTargetMembers := targetMembersSet.Difference(dbMembersSet).ToSlice()
+		onlyDbMembers := dbMembersSet.Difference(targetMembersSet).ToSlice()
+
+		if len(onlyTargetMembers) > 0 {
+			for _, m := range onlyTargetMembers {
+				_, err := tx.NamedExec("INSERT INTO `user_circle` (`user_id`, `circle_id`) VALUES (:user_id, :circle_id);",
+					map[string]interface{}{
+						"user_id":   m,
+						"circle_id": targetCircle.Id(),
+					})
+				if err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+		}
+		if len(onlyDbMembers) > 0 {
+			for _, m := range onlyDbMembers {
+				_, err = tx.NamedExec("DELETE FROM `user` WHERE `id`=:id;", m)
+				if err != nil {
+					tx.Rollback()
+					return err
+				}
+			}
+		}
 	}
 
 	var txErr error
