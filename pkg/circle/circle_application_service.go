@@ -163,7 +163,7 @@ func (c CircleApplicationService) Join(circleId, userId string) (result CircleGe
 	return result
 }
 
-func (c CircleApplicationService) Get(command CircleGetCommandInterface) (result CircleGetResultInterface) {
+func (c CircleApplicationService) Get(command CircleGetCommandInterface) {
 	var circleData CircleData
 
 	id, idErr := command.GetId()
@@ -172,19 +172,19 @@ func (c CircleApplicationService) Get(command CircleGetCommandInterface) (result
 	if idErr != nil {
 		circleId, err := circle_model.NewCircleId(id)
 		if err != nil {
-			result.Status(500)
-			return result
+			command.Status(500)
+			return
 		}
 
 		circle, err := c.circleRepository.Find(circleId)
 		if err != nil {
-			result.Status(500)
-			return result
+			command.Status(500)
+			return
 		}
 
 		if circle == nil {
-			result.JSON(404, errors.New("target circle is not found"))
-			return result
+			command.JSON(404, errors.New("target circle is not found"))
+			return
 		}
 
 		circleData = NewCircleData(circle)
@@ -192,38 +192,52 @@ func (c CircleApplicationService) Get(command CircleGetCommandInterface) (result
 	} else if nameErr != nil {
 		circleName, err := circle_model.NewCircleName(name)
 		if err != nil {
-			result.JSON(500, err)
-			return result
+			command.JSON(500, err)
+			return
 		}
 
 		circles, err := c.circleRepository.FindAll(circleName)
 		if err != nil {
-			result.JSON(500, err)
-			return result
+			command.JSON(500, err)
+			return
 		}
 		if len(circles) == 0 {
-			result.JSON(404, errors.New("target circle is not found"))
-			return result
+			command.JSON(404, errors.New("target circle is not found"))
+			return
 		}
 
 		if len(circles) != 1 {
-			result.JSON(400, errors.New("target circle is not found"))
-			return result
+			command.JSON(400, errors.New("target circle is not found"))
+			return
 		}
 
 		circle := circles[0]
 		circleData = NewCircleData(circle)
-		result.JSON(200, circleData)
+		command.JSON(200, circleData)
 
 	} else {
-		result.JSON(400, errors.New("both arguments were not specified"))
-		return result
+		command.JSON(400, errors.New("both arguments were not specified"))
+		return
 	}
 
-	return result
+	return
 }
 
-func (c CircleApplicationService) GetRecommended(circleName circle_model.CircleName) (result CircleGetResultInterface) {
+func (c CircleApplicationService) GetRecommended(command CircleGetCommandInterface) (result CircleGetResultInterface) {
+	name, err := command.GetName()
+	if err != nil {
+		result.JSON(400, err)
+		return result
+
+	}
+
+	circleName, err := circle_model.NewCircleName(name)
+	if err != nil {
+		result.JSON(400, err)
+		return result
+
+	}
+
 	circles, err := c.circleRepository.FindAll(circleName)
 	if err != nil {
 		result.Status(500)

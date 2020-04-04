@@ -112,7 +112,7 @@ func (u UserApplicationService) Update(command UserUpdateCommand) (result UserGe
 	return result
 }
 
-func (u UserApplicationService) Get(command UserGetCommandInterface) (result UserGetResultInterface) {
+func (u UserApplicationService) Get(command UserGetCommandInterface) {
 	var userData UserData
 
 	id, idErr := command.GetId()
@@ -121,19 +121,19 @@ func (u UserApplicationService) Get(command UserGetCommandInterface) (result Use
 	if idErr != nil {
 		userId, err := user_model.NewUserId(id)
 		if err != nil {
-			result.JSON(400, err)
-			return result
+			command.JSON(400, err)
+			return
 		}
 
 		user, err := u.userRepository.Find(userId)
 		if err != nil {
-			result.Status(500)
-			return result
+			command.Status(500)
+			return
 		}
 
 		if user != nil {
-			result.JSON(400, errors.New("target user is not found"))
-			return result
+			command.JSON(400, errors.New("target user is not found"))
+			return
 		}
 
 		userData = NewUserData(user)
@@ -141,36 +141,36 @@ func (u UserApplicationService) Get(command UserGetCommandInterface) (result Use
 	} else if nameErr != nil {
 		userName, err := user_model.NewUserName(name)
 		if err != nil {
-			result.JSON(400, err)
-			return result
+			command.JSON(400, err)
+			return
 		}
 
 		users, err := u.userRepository.FindAll(userName)
 		if err != nil {
-			result.Status(500)
-			return result
+			command.Status(500)
+			return
 		}
 
 		if len(users) == 0 {
-			result.JSON(400, errors.New("target user is not found"))
-			return result
+			command.JSON(400, errors.New("target user is not found"))
+			return
 		}
 
 		if len(users) != 1 {
-			result.JSON(400, errors.New("target user name is duplicated"))
-			return result
+			command.JSON(400, errors.New("target user name is duplicated"))
+			return
 		}
 
 		user := users[0]
 		userData = NewUserData(user)
 
 	} else {
-		result.JSON(400, errors.New("both arguments were not specified"))
-		return result
+		command.JSON(400, errors.New("both arguments were not specified"))
+		return
 	}
 
-	result.JSON(200, userData)
-	return result
+	command.JSON(200, userData)
+	return
 }
 
 func (u UserApplicationService) Delete(id string) (result UserGetResultInterface) {
