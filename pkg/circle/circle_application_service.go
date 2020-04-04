@@ -187,3 +187,18 @@ func (c CircleApplicationService) Get(command CircleGetCommand) (CircleData, err
 
 	return circleData, nil
 }
+
+func (c CircleApplicationService) GetRecommended(circleName circle_model.CircleName) (recommended []*circle_model.Circle, err error) {
+	circles, err := c.circleRepository.FindAll(circleName)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, c := range circles {
+		if circle_model.IsRecommended(c) {
+			recommended = append(recommended, c)
+		}
+	}
+
+	return recommended, err
+}

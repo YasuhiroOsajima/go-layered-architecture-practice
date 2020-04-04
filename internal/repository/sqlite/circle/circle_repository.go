@@ -198,3 +198,45 @@ func (r CircleRepository) Find(targetCircleId circle.CircleId) (*circle.Circle, 
 	targetCircle := circle.NewCircle(cid, cname, targetOwner, targetMembers)
 	return targetCircle, nil
 }
+
+func (r CircleRepository) FindAll(targetCircleName circle.CircleName) ([]*circle.Circle, error) {
+	rows, err := r.db.Query("SELECT * FROM `user` WHERE `name`=?;", targetCircleName)
+	if err != nil && err != sql.ErrNoRows {
+		return nil, err
+	}
+	if rows == nil {
+		return nil, nil
+	}
+
+	var circles []*circle.Circle
+	for rows.Next() {
+		var id, name, ownerId string
+		var members []string
+		err = rows.Scan(&id, &name, &ownerId, &members)
+		if err != nil {
+			return nil, err
+		}
+
+		cid, _ := circle.NewCircleId(id)
+		cname, _ := circle.NewCircleName(name)
+		oid, _ := user.NewUserId(ownerId)
+		owner, err := r.userRepository.Find(oid)
+		if err != nil {
+			return nil, err
+		}
+
+		var memberList []*user.User
+		for _, memberId := range members {
+			mid, _ := user.NewUserId(memberId)
+			member, err := r.userRepository.Find(mid)
+			if err != nil {
+				return nil, err
+			}
+			memberList = append(memberList, member)
+		}
+
+		circles = append(circles, circle.NewCircle(cid, cname, owner, memberList))
+	}
+
+	return circles, nil
+}
