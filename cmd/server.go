@@ -1,20 +1,15 @@
 package main
 
 import (
-	"fmt"
+	"github.com/gin-gonic/gin"
 
-	user_app "go-layered-architecture-practice/pkg/user"
+	"go-layered-architecture-practice/cmd/server"
 )
 
 func main() {
-	sqlite := InitializeUserRepository()
-	userService := InitializeUserService()
-	userFactory := InitializeUserFactory()
+	router := gin.Default()
 
-	app := user_app.NewUserApplicationService(sqlite, userService, userFactory)
-	err := app.Register("aaa", "test@sample.hoge")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	router.POST("/users", func(c *gin.Context) { server.RegisterUser(c) })
+
+	router.Run()
 }
