@@ -125,7 +125,8 @@ func (c CircleApplicationService) Join(circleId, userId string) error {
 	return err
 }
 
-func (c CircleApplicationService) Get(command CircleGetCommand) (CircleData, error) {
+func (c CircleApplicationService) Get(command CircleGetCommand) (CircleGetResult, error) {
+	var circleGetResult CircleGetResult
 	var circleData CircleData
 
 	id, idErr := command.GetId()
@@ -134,16 +135,16 @@ func (c CircleApplicationService) Get(command CircleGetCommand) (CircleData, err
 	if idErr != nil {
 		circleId, err := circle_model.NewCircleId(id)
 		if err != nil {
-			return circleData, err
+			return circleGetResult, err
 		}
 
 		circle, err := c.circleRepository.Find(circleId)
 		if err != nil {
-			return circleData, err
+			return circleGetResult, err
 		}
 
 		if circle == nil {
-			return circleData, errors.New("target circle is not found")
+			return circleGetResult, errors.New("target circle is not found")
 		}
 
 		circleData = NewCircleData(circle)
@@ -151,33 +152,34 @@ func (c CircleApplicationService) Get(command CircleGetCommand) (CircleData, err
 	} else if nameErr != nil {
 		circleName, err := circle_model.NewCircleName(name)
 		if err != nil {
-			return circleData, err
+			return circleGetResult, err
 		}
 
 		circles, err := c.circleRepository.FindAll(circleName)
 		if err != nil {
-			return circleData, err
+			return circleGetResult, err
 		}
 		if len(circles) == 0 {
-			return circleData, errors.New("target circle is not found")
+			return circleGetResult, errors.New("target circle is not found")
 		}
 
 		if len(circles) != 1 {
-			return circleData, errors.New("target circle name is duplicated")
+			return circleGetResult, errors.New("target circle name is duplicated")
 		}
 
 		circle := circles[0]
 		circleData = NewCircleData(circle)
 
 	} else {
-		return circleData, errors.New("both arguments were not specified")
+		return circleGetResult, errors.New("both arguments were not specified")
 	}
 
-	return circleData, nil
+	circleGetResult = NewCircleGetResult(circleData)
+	return circleGetResult, nil
 }
 
-func (c CircleApplicationService) GetRecommended(command CircleGetCommand) ([]CircleData, error) {
-	var recommended []CircleData
+func (c CircleApplicationService) GetRecommended(command CircleGetCommand) ([]CircleGetResult, error) {
+	var recommended []CircleGetResult
 
 	name, err := command.GetName()
 	if err != nil {
@@ -196,8 +198,9 @@ func (c CircleApplicationService) GetRecommended(command CircleGetCommand) ([]Ci
 
 	for _, c := range circles {
 		if circle_model.IsRecommended(c) {
-			circleData := NewCircleData(c)
-			recommended = append(recommended, circleData)
+			d := NewCircleData(c)
+			r := NewCircleGetResult(d)
+			recommended = append(recommended, r)
 		}
 	}
 
