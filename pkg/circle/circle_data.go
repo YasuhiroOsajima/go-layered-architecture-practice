@@ -5,6 +5,8 @@ import (
 	"go-layered-architecture-practice/pkg/user"
 )
 
+// Data object is to avoid dependencies to domain layer objects by application service layer.
+
 type CircleData struct {
 	Id      string
 	Name    string

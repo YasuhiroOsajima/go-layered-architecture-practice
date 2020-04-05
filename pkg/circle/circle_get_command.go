@@ -1,10 +1,8 @@
 package circle
 
-// Result object is to avoid dependencies to client layer.
-// This interface may express Web framework's return object.
-// Result object separates application service data object and clients.
-
 import "errors"
+
+// Command object is for multi length args and default values.
 
 type CircleGetCommand struct {
 	id   string

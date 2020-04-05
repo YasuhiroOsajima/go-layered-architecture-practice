@@ -2,9 +2,7 @@ package circle
 
 import "go-layered-architecture-practice/pkg/user"
 
-// Result object is to avoid dependencies to client layer.
-// This interface may express Web framework's return object.
-// Result object separates application service data object and clients.
+// Result object is to avoid dependencies to application service objects by client layer.
 
 type CircleGetResult struct {
 	Id      string
