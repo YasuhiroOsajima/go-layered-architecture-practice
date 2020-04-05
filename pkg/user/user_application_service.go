@@ -17,77 +17,61 @@ func NewUserApplicationService(repo user_model.UserRepositoryInterface, service 
 	return UserApplicationService{repo, service, factory}
 }
 
-func (u UserApplicationService) Register(name, mailAddress string) (result UserGetResultInterface) {
+func (u UserApplicationService) Register(name, mailAddress string) error {
 	userName, err := user_model.NewUserName(name)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	userMailAddress, err := user_model.NewUserMailAddress(mailAddress)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	newUser, err := u.userFactory.Create(userName, userMailAddress)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	exists, err := u.userService.Exists(newUser)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	if exists {
-		result.JSON(400, errors.New("same name user is already exists"))
-		return result
+		return errors.New("same name user is already exists")
 	}
 
 	err = u.userRepository.Save(newUser)
-	if err != nil {
-		result.Status(500)
-		return result
-	}
-
-	result.Status(200)
-	return result
+	return err
 }
 
-func (u UserApplicationService) Update(command UserUpdateCommand) (result UserGetResultInterface) {
+func (u UserApplicationService) Update(command UserUpdateCommand) error {
 	userId, err := user_model.NewUserId(command.GetId())
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	user, err := u.userRepository.Find(userId)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	nameArg, err := command.GetName()
 	if err != nil {
 		userName, err := user_model.NewUserName(nameArg)
 		if err != nil {
-			result.Status(500)
-			return result
+			return err
 		}
 
 		user.ChangeName(userName)
 
 		found, err := u.userService.Exists(user)
 		if err != nil {
-			result.Status(500)
-			return result
+			return err
 		}
 		if found {
-			result.JSON(400, errors.New("same name user is already exists"))
-			return result
+			return errors.New("same name user is already exists")
 		}
 	}
 
@@ -95,24 +79,17 @@ func (u UserApplicationService) Update(command UserUpdateCommand) (result UserGe
 	if err != nil {
 		userMailAddress, err := user_model.NewUserMailAddress(mailAddress)
 		if err != nil {
-			result.Status(500)
-			return result
+			return err
 		}
 
 		user.ChangeMailAddress(userMailAddress)
 	}
 
 	err = u.userRepository.Save(user)
-	if err != nil {
-		result.Status(500)
-		return result
-	}
-
-	result.Status(200)
-	return result
+	return err
 }
 
-func (u UserApplicationService) Get(command UserGetCommandInterface) {
+func (u UserApplicationService) Get(command UserGetCommand) (UserData, error) {
 	var userData UserData
 
 	id, idErr := command.GetId()
@@ -121,19 +98,16 @@ func (u UserApplicationService) Get(command UserGetCommandInterface) {
 	if idErr != nil {
 		userId, err := user_model.NewUserId(id)
 		if err != nil {
-			command.JSON(400, err)
-			return
+			return userData, err
 		}
 
 		user, err := u.userRepository.Find(userId)
 		if err != nil {
-			command.Status(500)
-			return
+			return userData, err
 		}
 
 		if user != nil {
-			command.JSON(400, errors.New("target user is not found"))
-			return
+			return userData, errors.New("target user is not found")
 		}
 
 		userData = NewUserData(user)
@@ -141,57 +115,43 @@ func (u UserApplicationService) Get(command UserGetCommandInterface) {
 	} else if nameErr != nil {
 		userName, err := user_model.NewUserName(name)
 		if err != nil {
-			command.JSON(400, err)
-			return
+			return userData, err
 		}
 
 		users, err := u.userRepository.FindAll(userName)
 		if err != nil {
-			command.Status(500)
-			return
+			return userData, err
 		}
 
 		if len(users) == 0 {
-			command.JSON(400, errors.New("target user is not found"))
-			return
+			return userData, errors.New("target user is not found")
 		}
 
 		if len(users) != 1 {
-			command.JSON(400, errors.New("target user name is duplicated"))
-			return
+			return userData, errors.New("target user name is duplicated")
 		}
 
 		user := users[0]
 		userData = NewUserData(user)
 
 	} else {
-		command.JSON(400, errors.New("both arguments were not specified"))
-		return
+		return userData, errors.New("both arguments were not specified")
 	}
 
-	command.JSON(200, userData)
-	return
+	return userData, nil
 }
 
-func (u UserApplicationService) Delete(id string) (result UserGetResultInterface) {
+func (u UserApplicationService) Delete(id string) error {
 	userId, err := user_model.NewUserId(id)
 	if err != nil {
-		result.JSON(400, err)
-		return result
+		return err
 	}
 
 	user, err := u.userRepository.Find(userId)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	err = u.userRepository.Delete(user)
-	if err != nil {
-		result.Status(500)
-		return result
-	}
-
-	result.Status(200)
-	return result
+	return err
 }

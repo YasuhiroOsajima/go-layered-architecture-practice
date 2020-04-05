@@ -2,6 +2,7 @@ package circle
 
 import (
 	"errors"
+
 	circle_model "go-layered-architecture-practice/internal/domain/models/circle"
 	"go-layered-architecture-practice/internal/domain/models/user"
 	"go-layered-architecture-practice/internal/domain/services"
@@ -18,152 +19,113 @@ func NewCircleApplicationService(circleRepo circle_model.CircleRepositoryInterfa
 	return CircleApplicationService{circleRepo, service, factory, userRepo}
 }
 
-func (c CircleApplicationService) Create(name, userId string) (result CircleGetResultInterface) {
+func (c CircleApplicationService) Create(name, userId string) error {
 	ownerId, err := user.NewUserId(userId)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	owner, err := c.userRepository.Find(ownerId)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 	if owner == nil {
-		result.JSON(404, errors.New("specified owner user is not exists"))
-		return result
+		return errors.New("specified owner user is not exists")
 	}
 
 	circleName, err := circle_model.NewCircleName(name)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	newCircle, err := c.circleFactory.Create(circleName, owner)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	exists, err := c.circleService.Exists(newCircle)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	if exists {
-		result.JSON(400, errors.New("same name circle is already exists"))
-		return result
-
+		return errors.New("same name circle is already exists")
 	}
 
 	err = c.circleRepository.Save(newCircle)
-	if err != nil {
-		result.Status(500)
-		return result
-	}
-
-	result.Status(200)
-	return result
+	return err
 }
 
-func (c CircleApplicationService) Update(id, name string) (result CircleGetResultInterface) {
+func (c CircleApplicationService) Update(id, name string) error {
 	circleId, err := circle_model.NewCircleId(id)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	circle, err := c.circleRepository.Find(circleId)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	circleName, err := circle_model.NewCircleName(name)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	circle.ChangeName(circleName)
 	found, err := c.circleService.Exists(circle)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 	if found {
-		result.JSON(400, errors.New("same name circle is already exists"))
-		return result
+		return errors.New("same name circle is already exists")
 	}
 
 	err = c.circleRepository.Save(circle)
-	if err != nil {
-		result.Status(500)
-		return result
-	}
-
-	result.Status(200)
-	return result
+	return err
 }
 
-func (c CircleApplicationService) Join(circleId, userId string) (result CircleGetResultInterface) {
+func (c CircleApplicationService) Join(circleId, userId string) error {
 	targetUserId, err := user.NewUserId(userId)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	targetUser, err := c.userRepository.Find(targetUserId)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 	if targetUser == nil {
-		result.JSON(404, errors.New("specified user is not exists"))
-		return result
+		return errors.New("specified user is not exists")
 	}
 
 	targetCircleId, err := circle_model.NewCircleId(circleId)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	targetCircle, err := c.circleRepository.Find(targetCircleId)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 	if targetCircle == nil {
-		result.JSON(404, errors.New("specified circle is not exists"))
-		return result
+		return errors.New("specified circle is not exists")
 	}
 
 	if targetCircle.IsFull() {
-		result.JSON(409, errors.New("target circle has full of members"))
-		return result
+		return errors.New("target circle has full of members")
 	}
 
 	err = targetCircle.Join(targetUser)
 	if err != nil {
-		result.Status(500)
-		return result
+		return err
 	}
 
 	err = c.circleRepository.Save(targetCircle)
-	if err != nil {
-		result.Status(500)
-		return result
-	}
-
-	result.Status(200)
-	return result
+	return err
 }
 
-func (c CircleApplicationService) Get(command CircleGetCommandInterface) {
+func (c CircleApplicationService) Get(command CircleGetCommand) (CircleData, error) {
 	var circleData CircleData
 
 	id, idErr := command.GetId()
@@ -172,19 +134,16 @@ func (c CircleApplicationService) Get(command CircleGetCommandInterface) {
 	if idErr != nil {
 		circleId, err := circle_model.NewCircleId(id)
 		if err != nil {
-			command.Status(500)
-			return
+			return circleData, err
 		}
 
 		circle, err := c.circleRepository.Find(circleId)
 		if err != nil {
-			command.Status(500)
-			return
+			return circleData, err
 		}
 
 		if circle == nil {
-			command.JSON(404, errors.New("target circle is not found"))
-			return
+			return circleData, errors.New("target circle is not found")
 		}
 
 		circleData = NewCircleData(circle)
@@ -192,65 +151,55 @@ func (c CircleApplicationService) Get(command CircleGetCommandInterface) {
 	} else if nameErr != nil {
 		circleName, err := circle_model.NewCircleName(name)
 		if err != nil {
-			command.JSON(500, err)
-			return
+			return circleData, err
 		}
 
 		circles, err := c.circleRepository.FindAll(circleName)
 		if err != nil {
-			command.JSON(500, err)
-			return
+			return circleData, err
 		}
 		if len(circles) == 0 {
-			command.JSON(404, errors.New("target circle is not found"))
-			return
+			return circleData, errors.New("target circle is not found")
 		}
 
 		if len(circles) != 1 {
-			command.JSON(400, errors.New("target circle is not found"))
-			return
+			return circleData, errors.New("target circle name is duplicated")
 		}
 
 		circle := circles[0]
 		circleData = NewCircleData(circle)
-		command.JSON(200, circleData)
 
 	} else {
-		command.JSON(400, errors.New("both arguments were not specified"))
-		return
+		return circleData, errors.New("both arguments were not specified")
 	}
 
-	return
+	return circleData, nil
 }
 
-func (c CircleApplicationService) GetRecommended(command CircleGetCommandInterface) (result CircleGetResultInterface) {
+func (c CircleApplicationService) GetRecommended(command CircleGetCommand) ([]CircleData, error) {
+	var recommended []CircleData
+
 	name, err := command.GetName()
 	if err != nil {
-		result.JSON(400, err)
-		return result
-
+		return recommended, err
 	}
 
 	circleName, err := circle_model.NewCircleName(name)
 	if err != nil {
-		result.JSON(400, err)
-		return result
-
+		return recommended, err
 	}
 
 	circles, err := c.circleRepository.FindAll(circleName)
 	if err != nil {
-		result.Status(500)
-		return result
+		return recommended, err
 	}
 
-	var recommended []*circle_model.Circle
 	for _, c := range circles {
 		if circle_model.IsRecommended(c) {
-			recommended = append(recommended, c)
+			circleData := NewCircleData(c)
+			recommended = append(recommended, circleData)
 		}
 	}
 
-	result.JSON(200, recommended)
-	return result
+	return recommended, nil
 }
