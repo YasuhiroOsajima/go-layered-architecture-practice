@@ -9,7 +9,7 @@ wire_gen.go
 
 test.db
 
-server
+./server
 server.exe
-command
+./command
 command.exe
